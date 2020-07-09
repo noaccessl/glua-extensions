@@ -4,7 +4,7 @@ WhiteList = {
 	-- Example: [ 'steamid here' ] = true, 
 } 
 
-hook_Add( 'CheckPassword', 'CheckWhiteList', function( SteamID64, a, b, c, SteamName ) 
+hook.Add( 'CheckPassword', 'CheckWhiteList', function( SteamID64, a, b, c, SteamName ) 
     if ( WhiteList_Enabled ) then 
 	    local SteamID = util.SteamIDFrom64( SteamID64 ) 
 
