@@ -1,2 +1,9 @@
 # string2.lua
-Rewrites default string.lower and string.upper functions ( added Russian support )
+Переписывает стандартные функции string.(upper|lower), с поддержкой русского языка
+Эти функции по умолчанию не поддерживают русский язык. (См. Пример ниже)
+```lua
+-- в этой случае функции string.(upper|lower) стандарты
+print( string.upper( 'это русские символы' ) -- output: это русские символы
+print( string.lower( 'ЭТО РУССКИЕ СИМВОЛЫ' ) -- output: ЭТО РУССКИЕ СИМВОЛЫ
+-- то есть, оно не преобразует русские символы в верхний/нижний регистр
+```
