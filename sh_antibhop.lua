@@ -13,7 +13,7 @@ hook.Add( 'FinishMove', 'antibhop', function( player, Move )
 		Angle = Angle:Forward()
 
 		local a = ( ( not player:Crouching() ) and 0.05 ) or 0.01
-		local b = math_abs( Move:GetForwardSpeed() * a )
+		local b = math.abs( Move:GetForwardSpeed() * a )
 		local c = Move:GetMaxSpeed() * ( 1 + a )
 		local d = b + Move:GetVelocity():Length2D()
 
