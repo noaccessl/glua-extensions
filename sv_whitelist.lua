@@ -12,7 +12,7 @@ hook.Add( 'CheckPassword', 'CheckWhiteList', function( steamID64, ip, svPassword
         local steamID = SteamIDFrom64( steamID64 )
 
 	    if not ( wl[ steamID64 ] or wl[ steamID ] ) then
-	    	print( name .. ' ( ' .. steamID64 .. ' ) aren\'t in then whitelist, kicking.' )
+	    	print( name .. ' ( ' .. steamID64 .. ' ) aren\'t in the whitelist, kicking.' )
 	    	return false, message
 	    end
     end
