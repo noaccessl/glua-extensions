@@ -1,17 +1,18 @@
-WhiteListEnabled = true
+wlEnabled = true
 
-WhiteList = {
-	-- Example: [ 'SteamID or 64 Here' ] = true,
+wl = {
+	[ 'SteamID or 64-formatted here' ] = true,
 }
 
-local message = '' -- For example, "You aren't in the whitelist"
+local message = 'Sorry, but you aren\'t in the whitelist'
+local SteamIDFrom64 = util.SteamIDFrom64
 
-hook.Add( 'CheckPassword', 'CheckWhiteList', function( sid64, a, b, c, name )
-    if WhiteListEnabled then
-        local sid = util.SteamIDFrom64( sid64 )
+hook.Add( 'CheckPassword', 'CheckWhiteList', function( steamID64, ip, svPassword, clPassword, name )
+    if wlEnabled then
+        local steamID = SteamIDFrom64( steamID64 )
 
-	    if not WhiteList[ sid64 ] or not WhiteList[ sid ] then
-	    	print( name .. ' ( ' .. sid64 .. ' ) not in whitelist, kicking...' )
+	    if not ( wl[ steamID64 ] or wl[ steamID ] ) then
+	    	print( name .. ' ( ' .. steamID64 .. ' ) aren\'t in then whitelist, kicking.' )
 	    	return false, message
 	    end
     end
