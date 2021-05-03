@@ -1,4 +1,3 @@
-
 local string = string
 string.oldupper = string.oldupper or string.upper
 string.oldlower = string.oldlower or string.lower
@@ -27,7 +26,10 @@ function string.lower(str)
 end
 
 --[[
-Example:
-print( string.upper( 'что где когда' ) ) -- Output: ЧТО ГДЕ КОГДА
-print( string.lower( 'ЧТО ГДЕ КОГДА' ) ) -- Output: что где когда
+    #Example
+        print( string.upper 'абв' )
+        print( string.lower 'АБВ' )
+    #Output
+        АБВ
+        абв
 ]]
