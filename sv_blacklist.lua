@@ -1,17 +1,18 @@
-BlackListEnabled = true
+blEnabled = true
 
-BlackList = {
-	-- Example: [ 'SteamID or 64 Here' ] = true,
+bl = {
+	[ 'SteamID or 64-formatted here' ] = true,
 }
 
-local message = 'You are in the Blacklist'
+local message = 'You are in the blacklist'
+local SteamIDFrom64 = util.SteamIDFrom64
 
-hook.Add( 'CheckPassword', 'CheckBlackList', function( sid64, a, b, c, name )
-    if BlackListEnabled then
-        local sid = util.SteamIDFrom64( sid64 )
+hook.Add( 'CheckPassword', 'CheckBlackList', function( steamID64, ip, svPassword, clPassword, name )
+    if blEnabled then
+        local steamID = SteamIDFrom64( steamID64 )
 
-	    if BlackList[ sid64 ] or BlackList[ sid ] then
-	    	print( name .. ' ( ' .. sid64 .. ' ) is in blacklist, kicking...' )
+	    if bl[ steamID64 ] or bl[ steamID ] then
+	    	print( name .. ' ( ' .. steamID64 .. ' ) are in the blacklist, kicking.' )
 	    	return false, message
 	    end
     end
