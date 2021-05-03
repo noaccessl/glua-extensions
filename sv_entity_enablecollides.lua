@@ -26,6 +26,6 @@ function Entity:EnableCollides( bool )
         end
     end
 
-    self:SetCollisionGroup( Either( bool, COLLISION_GROUP_NONE, COLLISION_GROUP_WORLD ) )
+    self:SetCollisionGroup( bool and COLLISION_GROUP_NONE or COLLISION_GROUP_WORLD ) )
     self:DrawShadow( true )
 end
