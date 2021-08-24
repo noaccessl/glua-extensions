@@ -1,58 +1,78 @@
 function file.Lines( filename, path )
-    local File = file.Open( filename, 'r', path )
 
-    local lines = ''
-    while true do
-        local line = File:ReadLine()
-        if line == nil then break end
+	local File = file.Open( filename, 'r', path )
+	local lines = ''
 
-        lines = lines .. line
-    end
-    File:Close()
+	while true do
 
-    return lines
+		local line = File:ReadLine()
+		if line == nil then break end
+
+		lines = lines .. line
+
+	end
+
+	File:Close()
+
+	return lines
+
 end
 
 function file.LinesCount( filename, path )
-    local File = file.Open( filename, 'r', path )
 
-    local count = 1
-    while true do
-        local line = File:ReadLine()
-        if line == nil then break end
+	local File = file.Open( filename, 'r', path )
+	local count = 1
 
-        count = count + 1
-    end
-    File:Close()
+	while true do
 
-    return count
+		local line = File:ReadLine()
+		if line == nil then break end
+
+		count = count + 1
+
+	end
+
+	File:Close()
+
+	return count
+
 end
 
---[[ Meta ]]--
-local File = FindMetaTable 'File'
+--[[---------------------------------------------------------------------------
+Meta
+---------------------------------------------------------------------------]]
+local File = debug.getregistry()[ 'File' ] 
 
 function File:Lines()
-    local lines = ''
 
-    while true do
-        local line = self:ReadLine()
-        if line == nil then break end
+	local lines = ''
 
-        lines = lines .. line
-    end
+	while true do
 
-    return lines
+		local line = self:ReadLine()
+		if line == nil then break end
+
+		lines = lines .. line
+
+	end
+
+	return lines
+
 end
 
 function File:LinesCount()
-    local count = 1
 
-    while true do
-        local line = self:ReadLine()
-        if line == nil then break end
+	local count = 1
 
-        count = count + 1
-    end
+	while true do
 
-    return count
+		local line = self:ReadLine()
+		if line == nil then break end
+
+		count = count + 1
+
+	end
+
+	return count
+
 end
