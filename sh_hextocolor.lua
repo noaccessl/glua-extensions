@@ -38,4 +38,4 @@ FindMetaTable( 'Color' ).ToHex = ColorToHex
 Example
 ---------------------------------------------------------------------------]]
 local hex = ColorToHex( Color( 200, 0, 0 ) )
-print( hex ) -- Output: C80000 or C80000FF (last 2 characters are transparency(alpha) )
+print( hex ) -- Output: C80000 or C80000FF (last 2 characters are transparency aka alpha)
