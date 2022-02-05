@@ -1,82 +1,82 @@
 local GetExtension = string.GetExtensionFromFilename
 
-local allowedExtensions = {
-    [ 'png' ] = true,
-    [ 'jpg' ] = true,
-    [ 'jpeg' ] = true
+local AllowedExtensions = {
+
+	png = true,
+	jpg = true,
+	jpeg = true
+
 }
 
-if not file.Exists( 'servers-assets', 'DATA' ) then file.CreateDir 'servers-assets' end
+if file.Exists( 'web-assets', 'DATA' ) == false then
+	file.CreateDir( 'web-assets' )
+end
 
-function DownloadWebAsset( url, callback )
+function http.DownloadWebAsset( url, callback )
 
-	local urlExtension = GetExtension( url )
-    if not allowedExtensions[ urlExtension ] then return print( 'Downloading web asset from ' .. url .. '...\n\t[FAIL] URL does not point to the allowed file extension' ) end
-	
-	local mat
+	local extension = GetExtension( url )
+
+	if not AllowedExtensions[ extension ] then
+		return print( '[HTTP] Downloading web asset from ' .. url .. '...\n\t[FAIL] Invalid extension' )
+	end
 
 	local parameters = {
-        url = url,
-        method = 'GET',
-        success = function( num, body, tbl )
 
-            if body == '' then return end
-			
-			local assetName = string.StripExtension( string.GetFileFromFilename( string.gsub( url, '.+%/', '' ) ) )
-			local fileFormat = 'servers-assets/' .. assetName .. '.' .. urlExtension
+		url = url,
+		method = 'GET',
 
-            file.Write( fileFormat, body )
+		success = function( num, body, tbl )
 
-            mat = Material( '../data/' .. fileFormat )
+			if body == '' then return end
 
-            if callback then
+			local path = 'web-assets/' .. string.StripExtension( string.GetFileFromFilename( string.gsub( url, '.+%/', '' ) ) ) .. '.' .. extension
 
-                callback( mat )
+			file.Write( path, body )
 
-            end
+			mat = Material( '../data/' .. path )
 
-        end,
-        failed = function( reason )
+			if callback then
+				callback( mat )
+			end
 
-            print( 'Downloading web asset from ' .. url .. '...\n\t[FAIL] ' .. reason )
+		end,
 
-        end
-    }
-    HTTP( parameters )
+		failed = function( reason )
+			print( '[HTTP] Downloading web asset from ' .. url .. '...\n\t[FAIL] ' .. reason )
+		end
 
-    return mat
+	}
+	HTTP( parameters )
 
 end
 
 --[[---------------------------------------------------------------------------
 Example #1
 ---------------------------------------------------------------------------]]
-local callback = function( asset )
+http.DownloadWebAsset( 'https://noaccessl.github.io/img/banana.png', function( asset )
 
-	if not CLIENT then return end
+	if SERVER then return end
 
-	local DrawWebAssetExample = function()
+	hook.Add( 'HUDPaint', 'Example', function()
 
 		surface.SetDrawColor( 255, 255, 255 )
 		surface.SetMaterial( asset )
-		surface.DrawTexturedRect( ScrW() * 0.45, ScrH() * 0.45, asset:Width(), asset:Height() )
+		surface.DrawTexturedRect( ScrW() * 0.5 - asset:Width() * 0.5, ScrH() * 0.5 - asset:Height() * 0.5, asset:Width(), asset:Height() )
 
-	end
-	hook.Add( 'HUDPaint', 'DrawWebAssetExample', DrawWebAssetExample )
+	end )
 
-end
-DownloadWebAsset( 'https://noaccessl.github.io/img/banana.png', callback )
+end )
 
 --[[---------------------------------------------------------------------------
 Example #2
 ---------------------------------------------------------------------------]]
-local asset = DownloadWebAsset 'https://noaccessl.github.io/img/banana.png'
+local mat
+http.DownloadWebAsset( 'https://noaccessl.github.io/img/banana.png', function( asset ) mat = asset end )
 
-local DrawWebAssetExample = function()
+hook.Add( 'HUDPaint', 'Example', function()
 
 	surface.SetDrawColor( 255, 255, 255 )
-	surface.SetMaterial( asset )
-	surface.DrawTexturedRect( ScrW() * 0.45, ScrH() * 0.45, asset:Width(), asset:Height() )
+	surface.SetMaterial( mat )
+	surface.DrawTexturedRect( ScrW() * 0.5 - mat:Width() * 0.5, ScrH() * 0.5 - mat:Height() * 0.5, mat:Width(), mat:Height() )
 
-end
-hook.Add( 'HUDPaint', 'DrawWebAssetExample', DrawWebAssetExample )
+end )
