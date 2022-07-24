@@ -37,14 +37,11 @@ end
 
 --[[---------------------------------------------------------
 	Name: string.findnumeric( string str )
-	Desc: Finds a number in a string and returns converted string to number. Similar to tonumber, but more advanced
+	Desc: Finds a number in a string and returns it
 -----------------------------------------------------------]]
 function string.findnumeric( str )
-    local result = ''
 
-    for num in string.gmatch( str, '%d+' ) do
-        result = result .. num
-    end
+	local numeric = string.match( str, '%d+' )
+	return tonumber( numeric ) or 1
 
-    return tonumber( result ) -- may returns nil value if string hasn't any numbers
 end
