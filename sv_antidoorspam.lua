@@ -1,14 +1,14 @@
-hook.Add( 'PlayerUse', 'PreventDoorSpam', function( pl, ent )
+hook.Add( 'PlayerUse', 'antidoorspam', function( pl, ent )
 
-	if pl:Alive() == nil then return false end
+	if not pl:Alive() then return false end
 
 	if ent:GetClass() == 'prop_door_rotating' then
 
-		if ( ent.m_AntiDoorSpam or 0 ) > CurTime() then
+		if ( ent.m_NextUse or 0 ) > CurTime() then
 			return false
 		end
 
-		ent.m_AntiDoorSpam = CurTime() + 0.85
+		ent.m_NextUse = CurTime() + 0.85
 
 	end
 

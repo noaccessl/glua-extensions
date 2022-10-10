@@ -1,32 +1,38 @@
-local JUMPING
+local JUMPING = false
 
-hook.Add( 'SetupMove', 'antibhop', function( player, Move, CMoveData )
-	if ( bit.band( Move:GetButtons(), IN_JUMP ) ~= 0 and bit.band( Move:GetOldButtons(), IN_JUMP ) == 0 and player:OnGround() ) then
+hook.Add( 'SetupMove', 'antibhop', function( pl, cmd )
+
+	if bit.band( cmd:GetButtons(), IN_JUMP ) ~= 0 and bit.band( cmd:GetOldButtons(), IN_JUMP ) == 0 and pl:OnGround() then
 		JUMPING = true
 	end
+
 end )
 
-hook.Add( 'FinishMove', 'antibhop', function( player, Move )
-    if ( JUMPING ) then
-		local Angle = Move:GetAngles()
-		Angle.p = 0
-		Angle = Angle:Forward()
+hook.Add( 'FinishMove', 'antibhop', function( pl, cmd )
 
-		local a = ( ( not player:Crouching() ) and 0.05 ) or 0.01
-		local b = math.abs( Move:GetForwardSpeed() * a )
-		local c = Move:GetMaxSpeed() * ( 1 + a )
-		local d = b + Move:GetVelocity():Length2D()
+	if JUMPING then
 
-		if ( d > c ) then
-			b = b - ( d - c )
+		local ang = cmd:GetAngles()
+		ang.p = 0
+		ang = ang:Forward()
+
+		local mul = not pl:Crouching() and 0.05 or 0.01
+		local speed = math.abs( cmd:GetForwardSpeed() * mul )
+		local maxspeed = cmd:GetMaxSpeed() * ( 1 + mul )
+		local vel = speed + cmd:GetVelocity():Length2D()
+
+		if vel > maxspeed then
+			speed = speed - ( vel - maxspeed )
 		end
 
-		if ( Move:GetVelocity():Dot( Angle ) < 0 ) then
-			b = -b
+		if cmd:GetVelocity():Dot( ang ) < 0 then
+			speed = -speed
 		end
 
-		Move:SetVelocity( Angle * b + Move:GetVelocity() )
+		cmd:SetVelocity( ang * speed + cmd:GetVelocity() )
+
 	end
 
-	JUMPING = nil
+	JUMPING = false
+
 end )
