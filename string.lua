@@ -63,7 +63,3 @@ function string.Translate( text, source, target, callback )
 	end )
 
 end
-
-string.Translate( 'Hello World!', 'en', 'ru', function( translatedText )
-	print( translatedText ) -- Привет Мир!
-end )
