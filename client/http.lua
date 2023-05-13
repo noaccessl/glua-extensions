@@ -1,4 +1,4 @@
-local AllowedExtensions = {
+local allow = {
 
 	png = true;
 	jpg = true;
@@ -14,7 +14,7 @@ function http.DownloadImage( url, callback )
 
 	local extension = string.GetExtensionFromFilename( url )
 
-	if not AllowedExtensions[extension] then
+	if not allow[extension] then
 		return
 	end
 
