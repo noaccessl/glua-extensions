@@ -1,76 +1,73 @@
-local allow = {
+file.CreateDir( 'webassets' )
 
-	png = true;
-	jpg = true;
-	jpeg = true
+local GetExtension = string.GetExtensionFromFilename
+local GetFile = string.GetFileFromFilename
+local gsub = string.gsub
+local Write = file.Write
 
-}
+do if not coroutine.http then
 
-file.CreateDir( 'web-assets' )
+	local running = coroutine.running
+	local resume = coroutine.resume
+	local Fetch = http.Fetch
+	local yield = coroutine.yield
+	local wrap = coroutine.wrap
 
-local mat
+	local function request( url )
 
-function http.DownloadImage( url, callback )
+		local co = running()
 
-	local extension = string.GetExtensionFromFilename( url )
-
-	if not allow[extension] then
-		return
-	end
-
-	local parameters = {
-
-		url = url,
-		method = 'GET',
-
-		success = function( num, body, tbl )
-
-			if body == '' then return end
-
-			local path = 'web-assets/' .. string.StripExtension( string.GetFileFromFilename( string.gsub( url, '.+%/', '' ) ) ) .. '.' .. extension
-
-			file.Write( path, body )
-
-			mat = Material( '../data/' .. path )
-
-			if callback then
-				callback( mat )
-			end
-
+		local function onSuccess( body )
+			resume( co, true, body )
 		end
 
-	}
-	HTTP( parameters )
+		local function onFailure( err )
+			resume( co, false, err )
+		end
 
-	return mat
+		Fetch( url, onSuccess, onFailure )
 
-end
+		return yield()
+
+	end
+
+	coroutine.http = {}
+
+	function coroutine.http.Fetch( url, callback )
+
+		wrap( function()
+
+			local state, response = request( url )
+			callback( state, response )
+
+		end )()
+
+	end
+
+end end
 
 --[[---------------------------------------------------------------------------
-
-	http.DownloadImage( 'https://noaccessl.github.io/img/banana.png', function( img )
-
-		hook.Add( 'HUDPaint', 'example', function()
-
-			surface.SetDrawColor( 255, 255, 255 )
-			surface.SetMaterial( img )
-			surface.DrawTexturedRect( ScrW() * 0.5 - img:Width() * 0.5, ScrH() * 0.5 - img:Height() * 0.5, img:Width(), img:Height() )
-
-		end )
-
-	end )
-
-	---------------------------------------------------------------------------
-
-	local img
-	http.DownloadImage( 'https://noaccessl.github.io/img/banana.png', function( _img ) img = _img end )
-
-	hook.Add( 'HUDPaint', 'example', function()
-
-		surface.SetDrawColor( 255, 255, 255 )
-		surface.SetMaterial( img )
-		surface.DrawTexturedRect( ScrW() * 0.5 - img:Width() * 0.5, ScrH() * 0.5 - img:Height() * 0.5, img:Width(), img:Height() )
-
-	end )
-
+	http.DownloadImg
 ---------------------------------------------------------------------------]]
+local imgExt = { png = true; jpg = true; jpeg = true }
+
+function http.DownloadImg( url, callback, matParams )
+
+	local ext = GetExtension( url )
+	if not imgExt[ext] then return end
+
+	coroutine.http.Fetch( url, function( state, response )
+
+		if not response then return end
+
+		local path = 'webassets/' .. GetFile( gsub( url, '.+%/', '' ) )
+
+		Write( path, response )
+
+		if callback then
+			callback( Material( '../data/' .. path, matParams ) )
+		end
+
+	end )
+
+end

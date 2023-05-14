@@ -1,7 +1,7 @@
 local gmatch = string.gmatch
 local gsub = string.gsub
 local format = string.format
-local byte = string.byte
+local JSONToTable = util.JSONToTable
 
 --[[---------------------------------------------------------------------------
 	UTF-8
@@ -39,15 +39,46 @@ end
 --[[---------------------------------------------------------------------------
 	Translate
 ---------------------------------------------------------------------------]]
-local hex = '%%%02X'
+do if not coroutine.http then
 
-function string:URLEncode() -- https://github.com/SuperiorServers/dash/blob/master/lua/dash/extensions/string.lua#L38-L43
+	local running = coroutine.running
+	local resume = coroutine.resume
+	local Fetch = http.Fetch
+	local yield = coroutine.yield
+	local wrap = coroutine.wrap
 
-	return gsub( gsub( gsub( self, '\n', '\r\n' ), '([^%w ])', function( c )
-		return format( hex, byte( c ) )
-	end ), ' ', '+' )
+	local function request( url )
 
-end
+		local co = running()
+
+		local function onSuccess( body )
+			resume( co, true, body )
+		end
+
+		local function onFailure( err )
+			resume( co, false, err )
+		end
+
+		Fetch( url, onSuccess, onFailure )
+
+		return yield()
+
+	end
+
+	coroutine.http = {}
+
+	function coroutine.http.Fetch( url, callback )
+
+		wrap( function()
+
+			local state, response = request( url )
+			callback( state, response )
+
+		end )()
+
+	end
+
+end end
 
 function string.Translate( text, source, target, callback )
 
@@ -57,7 +88,7 @@ function string.Translate( text, source, target, callback )
 
 		if not response then return end
 
-		response = util.JSONToTable( response )
+		response = JSONToTable( response )
 		callback( gsub( gsub( response.responseData.translatedText, '&#39;', '\'' ), '&quot;', '\"' ) )
 
 	end )
