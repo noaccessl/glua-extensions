@@ -1,27 +1,49 @@
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	Purpose: Custom table encoder & decoder
-
-	Built-in JSON is not really good for networking because of large strings and performance cost
-	So, replace with your one e.g. pon (a good one, it's compressed and relatively fast)
+	Prepare
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local pFuncEncoder = pon.encode -- util.TableToJSON
-local pFuncDecoder = pon.decode -- util.JSONToTable
+--
+-- Metamethods: Entity, ConVar
+--
+local GetClass = FindMetaTable( 'Entity' ).GetClass
+local GetTable = FindMetaTable( 'Entity' ).GetTable
+
+local CVarGetFloat = FindMetaTable( 'ConVar' ).GetFloat
+
+--
+-- Globals
+--
+local GetCurTime = CurTime
+
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	Purpose: Instead of going through all the table and writing each key and value, let's send it as a string?
+	Purpose: Adds delay to using doors
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local WriteString = net.WriteString
+local DOOR_CLASS = {
 
-function net.WriteTable( tbl )
+	func_door = true;
+	func_door_rotating = true;
+	prop_door_rotating = true;
+	func_movelinear = true
 
-	WriteString( pFuncEncoder( tbl ) )
+}
 
-end
+local sv_doorusedelay = CreateConVar( 'sv_doorusedelay', '0.5', FCVAR_ARCHIVE + FCVAR_UNLOGGED, '', 0, 2 )
 
-local ReadString = net.ReadString
+hook.Add( 'PlayerUse', 'AntiDoorSpam', function( pl, pEntity )
 
-function net.ReadTable()
+	if DOOR_CLASS[ GetClass( pEntity ) ] then
 
-	return pFuncDecoder( ReadString() )
+		local pDoor = pEntity
+		local pDoor_t = GetTable( pDoor )
 
-end
+		if ( ( pDoor_t.m_flNextUse or 0 ) > GetCurTime() ) then
+			return false
+		end
+
+		pDoor_t.m_flNextUse = GetCurTime() + CVarGetFloat( sv_doorusedelay )
+
+		return true
+
+	end
+
+end )

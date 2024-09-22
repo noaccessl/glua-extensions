@@ -1,19 +1,13 @@
 --[[
-
 DEVELOPMENTAL VERSION;
-
 VERSION 1.2.2
 Copyright thelastpenguin™
-
 	You may use this for any purpose as long as:
 	-	You don't remove this copyright notice.
 	-	You don't claim this to be your own.
 	-	You properly credit the author, thelastpenguin™, if you publish your work based on (and/or using) this.
-
 	If you modify the code for any purpose, the above still applies to the modified code.
-
 	The author is not held responsible for any damages incured from the use of pon, you use it at your own risk.
-
 DATA TYPES SUPPORTED:
  - tables  - 		k,v - pointers
  - strings - 		k,v - pointers
@@ -23,7 +17,6 @@ DATA TYPES SUPPORTED:
  - Angles  -		k,v
  - Entities- 		k,v
  - Players - 		k,v
-
 CHANGE LOG
 V 1.1.0
  - Added Vehicle, NPC, NextBot, Player, Weapon
@@ -31,7 +24,6 @@ V 1.2.0
  - Added custom handling for k,v tables without any array component.
 V 1.2.1
  - fixed deserialization bug.
-
 THANKS TO...
  - VERCAS for the inspiration.
 ]]
@@ -40,129 +32,125 @@ THANKS TO...
 local pon = {};
 _G.pon = pon;
 
-local type, count = type, table.Count ;
-local tonumber = tonumber ;
+local type = type
+local tonumber = tonumber
 local format = string.format;
 do
-	local type, count = type, table.Count ;
-	local tonumber = tonumber ;
-	local format = string.format;
+	local type = type
+	local tonumber = tonumber
 
 	local encode = {};
-
-	local tryCache ;
 
 	local cacheSize = 0;
 
 	encode['table'] = function( self, tbl, output, cache )
 
-		if( cache[ tbl ] )then
+		if ( cache[ tbl ] ) then
 			output[ #output + 1 ] = format('(%x)',  cache[tbl] );
-			return ;
+			return
 		else
 			cacheSize = cacheSize + 1;
 			cache[ tbl ] = cacheSize;
 		end
 
 
-    local first = next(tbl, nil)
-    local predictedNumeric = 1
-    local lastKey = nil
-    -- starts with a numeric dealio
-    if first == 1 then
-      output[#output + 1] = '{'
+		local first = next(tbl, nil)
+		local predictedNumeric = 1
+		-- starts with a numeric dealio
+		if first == 1 then
+			output[#output + 1] = '{'
 
-      for k,v in next, tbl do
-        if k == predictedNumeric then
-          predictedNumeric = predictedNumeric + 1
+			for k,v in next, tbl do
+			if k == predictedNumeric then
+				predictedNumeric = predictedNumeric + 1
 
-          local tv = type(v)
-          if tv == 'string' then
-            local pid = cache[v]
-            if pid then
-              output[#output + 1] = format('(%x)', pid)
-            else
-              cacheSize = cacheSize + 1
-              cache[v] = cacheSize
-              self.string(self, v, output, cache)
-            end
-          else
-            self[tv](self, v, output, cache)
-          end
+				local tv = type(v)
+				if tv == 'string' then
+					local pid = cache[v]
+					if pid then
+						output[#output + 1] = format('(%x)', pid)
+					else
+						cacheSize = cacheSize + 1
+						cache[v] = cacheSize
+						self.string(self, v, output, cache)
+					end
+					else
+					self[tv](self, v, output, cache)
+				end
 
-        else
-          break
-        end
-      end
+			else
+				break
+			end
+			end
 
-			predictedNumeric = predictedNumeric - 1
-    else
-      predictedNumeric = nil
-    end
+				predictedNumeric = predictedNumeric - 1
+		else
+			predictedNumeric = nil
+		end
 
-    if predictedNumeric == nil then
-      output[#output + 1] = '[' -- no array component
-    else
-      output[#output + 1] = '~' -- array component came first so shit needs to happen
-    end
+		if predictedNumeric == nil then
+			output[#output + 1] = '[' -- no array component
+		else
+			output[#output + 1] = '~' -- array component came first so shit needs to happen
+		end
 
-    for k, v in next, tbl, predictedNumeric do
-      local tk, tv = type(k), type(v)
+		for k, v in next, tbl, predictedNumeric do
+			local tk, tv = type(k), type(v)
 
-      -- WRITE KEY
-      if tk == 'string' then
-        local pid = cache[ k ];
-        if( pid )then
-          output[ #output + 1 ] = format('(%x)',  pid );
-        else
-          cacheSize = cacheSize + 1;
-          cache[ k ] = cacheSize;
+			-- WRITE KEY
+			if tk == 'string' then
+			local pid = cache[ k ];
+			if ( pid ) then
+				output[ #output + 1 ] = format('(%x)',  pid );
+			else
+				cacheSize = cacheSize + 1;
+				cache[ k ] = cacheSize;
 
-          self.string( self, k, output, cache );
-        end
-      else
-        self[tk](self, k, output, cache)
-      end
+				self.string( self, k, output, cache );
+			end
+			else
+			self[tk](self, k, output, cache)
+			end
 
-      -- WRITE VALUE
-      if( tv == 'string' )then
-        local pid = cache[ v ];
-        if( pid )then
-          output[ #output + 1 ] = format('(%x)',  pid );
-        else
-          cacheSize = cacheSize + 1;
-          cache[ v ] = cacheSize;
+			-- WRITE VALUE
+			if ( tv == 'string' ) then
+			local pid = cache[ v ];
+			if ( pid ) then
+				output[ #output + 1 ] = format('(%x)',  pid );
+			else
+				cacheSize = cacheSize + 1;
+				cache[ v ] = cacheSize;
 
-          self.string( self, v, output, cache );
-        end
-      else
-        self[ tv ]( self, v, output, cache );
-      end
-    end
+				self.string( self, v, output, cache );
+			end
+			else
+			self[ tv ]( self, v, output, cache );
+			end
+		end
 
-    output[#output + 1] = '}'
+		output[#output + 1] = '}'
 	end
 	--    ENCODE STRING
-	local gsub = string.gsub ;
+	local gsub = string.gsub
 	encode['string'] = function( self, str, output )
 		--if tryCache( str, output ) then return end
-		local estr, count = gsub( str, ";", "\\;");
-		if( count == 0 )then
-			output[ #output + 1 ] = '\''..str..';';
+		local estr, count = gsub( str, ';', '\\;');
+		if ( count == 0 ) then
+			output[ #output + 1 ] = '\'' .. str .. ';';
 		else
-			output[ #output + 1 ] = '"'..estr..'";';
+			output[ #output + 1 ] = '"' .. estr .. '";';
 		end
 	end
 	--    ENCODE NUMBER
 	encode['number'] = function( self, num, output )
-		if num%1 == 0 then
+		if num % 1 == 0 then
 			if num < 0 then
 				output[ #output + 1 ] = format( 'x%x;', -num );
 			else
 				output[ #output + 1 ] = format('X%x;', num );
 			end
 		else
-			output[ #output + 1 ] = tonumber( num )..';';
+			output[ #output + 1 ] = tonumber( num ) .. ';';
 		end
 	end
 	--    ENCODE BOOLEAN
@@ -171,14 +159,14 @@ do
 	end
 	--    ENCODE VECTOR
 	encode['Vector'] = function( self, val, output )
-		output[ #output + 1 ] = ('v'..val.x..','..val.y)..(','..val.z..';');
+		output[ #output + 1 ] = ('v' .. val.x .. ',' .. val.y) .. (',' .. val.z .. ';');
 	end
 	--    ENCODE ANGLE
 	encode['Angle'] = function( self, val, output )
-		output[ #output + 1 ] = ('a'..val.p..','..val.y)..(','..val.r..';');
+		output[ #output + 1 ] = ('a' .. val.p .. ',' .. val.y) .. (',' .. val.r .. ';');
 	end
 	encode['Entity'] = function( self, val, output )
-		output[ #output + 1] = 'E'..(IsValid( val ) and (val:EntIndex( )..';') or '#');
+		output[ #output + 1] = 'E' .. (IsValid( val ) and (val:EntIndex( ) .. ';') or '#');
 	end
 	encode['Player']  = encode['Entity'];
 	encode['Vehicle'] = encode['Entity'];
@@ -191,27 +179,26 @@ do
 		output[ #output + 1 ] = '?';
 	end
 	encode.__index = function( key )
-		ErrorNoHalt('Type: '..key..' can not be encoded. Encoded as as pass-over value.');
+		ErrorNoHalt('Type: ' .. key .. ' can not be encoded. Encoded as as pass-over value.');
 		return encode['nil'];
 	end
 
 	do
-		local empty, concat = table.Empty, table.concat ;
+		local concat = table.concat
 		function pon.encode( tbl )
-			local output = {};
+			local res = {};
 			cacheSize = 0;
-			encode[ 'table' ]( encode, tbl, output, {} );
-			local res = concat( output );
+			encode[ 'table' ]( encode, tbl, res, {} );
 
-			return res;
+			return concat( res )
 		end
 	end
 end
 
 do
-	local tonumber = tonumber ;
-	local find, sub, gsub, Explode = string.find, string.sub, string.gsub, string.Explode ;
-	local Vector, Angle, Entity = Vector, Angle, Entity ;
+	local tonumber = tonumber
+	local find, sub, gsub, Explode = string.find, string.sub, string.gsub, string.Explode
+	local Vector, Angle, Entity = Vector, Angle, Entity
 
 	local decode = {};
 	decode['{'] = function( self, index, str, cache )
@@ -220,13 +207,13 @@ do
 		cache[ #cache + 1 ] = cur;
 
 		local k, v, tk, tv = 1, nil, nil, nil;
-		while( true )do
+		while ( true ) do
 			tv = sub( str, index, index );
-			if( not tv or tv == '~' )then
+			if ( not tv or tv == '~' ) then
 				index = index + 1;
-				break ;
+				break
 			end
-			if( tv == '}' )then
+			if ( tv == '}' ) then
 				return index + 1, cur;
 			end
 
@@ -238,11 +225,11 @@ do
 			k = k + 1;
 		end
 
-		while( true )do
+		while ( true ) do
 			tk = sub( str, index, index );
-			if( not tk or tk == '}' )then
+			if ( not tk or tk == '}' ) then
 				index = index + 1;
-				break ;
+				break
 			end
 
 			-- READ THE KEY
@@ -266,11 +253,11 @@ do
 		cache[ #cache + 1 ] = cur;
 
 		local k, v, tk, tv = 1, nil, nil, nil;
-		while( true )do
+		while ( true ) do
 			tk = sub( str, index, index );
-			if( not tk or tk == '}' )then
+			if ( not tk or tk == '}' ) then
 				index = index + 1;
-				break ;
+				break
 			end
 
 			-- READ THE KEY
@@ -282,7 +269,7 @@ do
 			tv = sub( str, index, index );
 			index = index + 1;
 			if not self[tv] then
-				print('did not find type: '..tv)
+				print('did not find type: ' .. tv)
 			end
 			index, v = self[ tv ]( self, index, str, cache );
 
@@ -379,9 +366,9 @@ do
 	end
 	-- ENTITY
 	decode[ 'E' ] = function( self, index, str, cache )
-		if( str[index] == '#' )then
+		if ( str[index] == '#' ) then
 			index = index + 1;
-			return index, NULL ;
+			return index, NULL
 		else
 			local finish = find( str, ';', index, true );
 			local num = tonumber( sub( str, index, finish - 1 ) );

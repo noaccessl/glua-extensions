@@ -1,25 +1,49 @@
 # http.lua
 
-## `http.DownloadImg`
+---
+
+### http.DownloadImage
 Downloads image from web server into `DATA/webassets` folder
 
-### Some use examples
+###### Example: Using only callback
 ```lua
-http.DownloadImg( 'https://noaccessl.github.io/img/banana.png', function( img )
+http.DownloadImage( 'https://files.facepunch.com/garry/822e60dc-c931-43e4-800f-cbe010b3d4cc.png', function( pMaterial )
 
 	hook.Add( 'HUDPaint', '', function()
 
+		local w, h = pMaterial:Width(), pMaterial:Height()
+
 		surface.SetDrawColor( 255, 255, 255 )
-		surface.SetMaterial( img )
-		surface.DrawTexturedRect( ScrW() * 0.5 - img:Width() * 0.5, ScrH() * 0.5 - img:Height() * 0.5, img:Width(), img:Height() )
+		surface.SetMaterial( pMaterial )
+		surface.DrawTexturedRect( ScrW() * 0.5 - w * 0.5, ScrH() * 0.5 - h * 0.5, w, h )
 
 	end )
 
 end )
 ```
+<br>
 
+###### Example: Using variable
 ```lua
-local mat
-http.DownloadImg( 'https://noaccessl.github.io/img/banana.png', function( img ) mat = img end )
--- Other code
+local matIcon = Material( '__error' )
+
+http.DownloadImage( 'https://files.facepunch.com/garry/822e60dc-c931-43e4-800f-cbe010b3d4cc.png', function( pMaterial )
+
+	matIcon = pMaterial
+
+end )
+
+hook.Add( 'HUDPaint', '', function()
+
+	if ( matIcon:IsError() ) then
+		return
+	end
+
+	local w, h = matIcon:Width(), matIcon:Height()
+
+	surface.SetDrawColor( 255, 255, 255 )
+	surface.SetMaterial( matIcon )
+	surface.DrawTexturedRect( ScrW() * 0.5 - w * 0.5, ScrH() * 0.5 - h * 0.5, w, h )
+
+end )
 ```

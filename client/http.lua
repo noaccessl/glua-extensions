@@ -1,73 +1,91 @@
-file.CreateDir( 'webassets' )
-
+--[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+	Prepare
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+--
+-- Globals
+--
 local GetExtension = string.GetExtensionFromFilename
 local GetFile = string.GetFileFromFilename
+
 local gsub = string.gsub
-local Write = file.Write
+local FileWrite = file.Write
 
-do if not coroutine.http then
+--
+-- Utilities
+--
+local function HTTPRequest( url )
 
-	local running = coroutine.running
-	local resume = coroutine.resume
-	local Fetch = http.Fetch
-	local yield = coroutine.yield
-	local wrap = coroutine.wrap
+	local thread = coroutine.running()
 
-	local function request( url )
+	http.Fetch( url, function( body )
 
-		local co = running()
+		coroutine.resume( thread, true, body )
 
-		local function onSuccess( body )
-			resume( co, true, body )
-		end
+	end, function( err )
 
-		local function onFailure( err )
-			resume( co, false, err )
-		end
-
-		Fetch( url, onSuccess, onFailure )
-
-		return yield()
-
-	end
-
-	coroutine.http = {}
-
-	function coroutine.http.Fetch( url, callback )
-
-		wrap( function()
-
-			local state, response = request( url )
-			callback( state, response )
-
-		end )()
-
-	end
-
-end end
-
---[[---------------------------------------------------------------------------
-	http.DownloadImg
----------------------------------------------------------------------------]]
-local imgExt = { png = true; jpg = true; jpeg = true }
-
-function http.DownloadImg( url, callback, matParams )
-
-	local ext = GetExtension( url )
-	if not imgExt[ext] then return end
-
-	coroutine.http.Fetch( url, function( state, response )
-
-		if not response then return end
-
-		local path = 'webassets/' .. GetFile( gsub( url, '.+%/', '' ) )
-
-		Write( path, response )
-
-		if callback then
-			callback( Material( '../data/' .. path, matParams ) )
-		end
+		coroutine.resume( thread, false, err )
 
 	end )
 
+	return coroutine.yield()
+
 end
+
+
+--[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+	Purpose: Very simple image downloader
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+file.CreateDir( 'webimages' )
+
+local IMAGE_EXTENSIONS = {
+
+	png = true;
+	jpg = true;
+	jpeg = true
+
+}
+
+local Downloaded = {}
+
+function http.DownloadImage( url, callback, pngParameters )
+
+	if ( not IMAGE_EXTENSIONS[ GetExtension( url ) ] ) then
+		return
+	end
+
+	coroutine.wrap( function()
+
+		local success, result = HTTPRequest( url )
+
+		if ( success ) then
+
+			local data = result
+
+			local path = 'webimages/' .. GetFile( gsub( url, '.+%/', '' ) )
+
+			FileWrite( path, data )
+			Downloaded[ path ] = true
+
+			if ( callback ) then
+				callback( Material( '../data/' .. path, pngParameters ) )
+			end
+
+		else
+
+			local err = result
+			error( Format( '[http.DownloadImage] Failed to fetch %s (Reason: %s)', url, err ) )
+
+		end
+
+	end )()
+
+end
+
+gameevent.Listen( 'client_disconnect' )
+hook.Add( 'client_disconnect', 'WebImagesGC', function()
+
+	for path in pairs( Downloaded ) do
+		file.Delete( path )
+	end
+
+end )

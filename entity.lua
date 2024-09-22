@@ -1,29 +1,70 @@
-local ENTITY = debug.getregistry().Entity
+--[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+	Prepare
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+--
+-- Metatables
+--
+local ENTITY = FindMetaTable( 'Entity' )
+local PHYSOBJ = FindMetaTable( 'PhysObj' )
 
-function ENTITY:EnableCollisions( bCollision )
+--
+-- Metamethods: Entity
+--
+local GetPhysicsObject		= ENTITY.GetPhysicsObject
+local GetPhysicsObjectCount	= ENTITY.GetPhysicsObjectCount
+local GetPhysicsObjectNum	= ENTITY.GetPhysicsObjectNum
 
-	local phys = self:GetPhysicsObject()
-	if not IsValid( phys ) then return end
+local SetCollisionGroup		= ENTITY.SetCollisionGroup
 
-	local physNum = self:GetPhysicsObjectCount()
+--
+-- Metamethods: PhysObj
+--
+local IsValidPhysicsObject	= PHYSOBJ.IsValid
 
-	if physNum == 1 then
-		phys:EnableCollisions( bCollision )
-	elseif physNum > 1 then
+local EnableCollisions		= PHYSOBJ.EnableCollisions
 
-		for i = 0, physNum - 1 do
+local ClearGameFlag			= PHYSOBJ.ClearGameFlag
+local AddGameFlag			= PHYSOBJ.AddGameFlag
 
-			local part = self:GetPhysicsObjectNum( i )
+--
+-- Enums
+--
+local FVPHYSICS_NO_SELF_COLLISIONS = FVPHYSICS_NO_SELF_COLLISIONS
 
-			if IsValid( part ) then
+local COLLISION_GROUP_NONE = COLLISION_GROUP_NONE
+local COLLISION_GROUP_WORLD = COLLISION_GROUP_WORLD
 
-				if bCollision then
-					part:ClearGameFlag( FVPHYSICS_NO_SELF_COLLISIONS )
+
+--[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+	Purpose: Sets whether the entity should collide with anything or not
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
+function ENTITY:EnableCollisions( enable )
+
+	local pPhysObj = GetPhysicsObject( self )
+
+	if ( not IsValidPhysicsObject( pPhysObj ) ) then
+		return
+	end
+
+	local numObjects = GetPhysicsObjectCount( self )
+
+	if ( numObjects == 1 ) then
+		EnableCollisions( pPhysObj, enable )
+	else
+
+		for i = 0, numObjects - 1 do
+
+			local pPhysPart = GetPhysicsObjectNum( self, i )
+
+			if ( IsValidPhysicsObject( pPhysPart ) ) then
+
+				if ( enable ) then
+					ClearGameFlag( pPhysPart, FVPHYSICS_NO_SELF_COLLISIONS )
 				else
-					part:AddGameFlag( FVPHYSICS_NO_SELF_COLLISIONS )
+					AddGameFlag( pPhysPart, FVPHYSICS_NO_SELF_COLLISIONS )
 				end
 
-				part:EnableCollisions( bool )
+				EnableCollisions( pPhysPart, enable )
 
 			end
 
@@ -31,33 +72,6 @@ function ENTITY:EnableCollisions( bCollision )
 
 	end
 
-	self:SetCollisionGroup( bCollision and COLLISION_GROUP_NONE or COLLISION_GROUP_WORLD )
+	SetCollisionGroup( self, enable and COLLISION_GROUP_NONE or COLLISION_GROUP_WORLD )
 
-end
-
-local encode = util.TableToJSON -- replace with you encoder (spon/pon etc.)
-local decode = util.JSONToTable -- replace with you decoder (spon/pon etc.)
-
-function ENTITY:SetNWTable( key, tbl )
-	self:SetNWString( key, encode( tbl ) )
-end
-
-function ENTITY:GetNWTable( key )
-	return decode( self:GetNWString( key ) ) or {}
-end
-
-function ENTITY:SetNW2Table( key, tbl )
-	self:SetNW2String( key, encode( tbl ) )
-end
-
-function ENTITY:GetNW2Table( key )
-	return decode( self:GetNW2String( key ) ) or {}
-end
-
-function SetGlobalTable( index, tbl )
-	SetGlobalString( index, encode( tbl ) )
-end
-
-function GetGlobalTable( index )
-	return decode( GetGlobalString( index ) ) or {}
 end

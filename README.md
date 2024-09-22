@@ -1,16 +1,10 @@
-# string.lua
+# Simple extensions for GLua
 
-### UTF-8 support for `string.upper` and `string.lower`
+---
 
+### [UTF-8](utf8.lua)
+* `string.lower` & `string.upper` with UTF-8  support
 ```lua
-print( string.lower( 'АБВ' ) ) -- абв
-print( string.upper( 'абв' ) ) -- АБВ
-```
-
-### Translate
-
-```lua
-string.Translate( 'Hello World!', 'en', 'ru', function( translated )
-	print( translated ) -- Привет Мир!
-end )
+print( utf8.lower( 'АБВ' ) ) -- абв
+print( utf8.upper( 'абв' ) ) -- АБВ
 ```
