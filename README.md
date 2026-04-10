@@ -19,10 +19,10 @@ Switch statement akin to C/C++. JIT-compatible.
 #### [client/http](./client/http.lua)
 [client/README.md](./client/README.md)
 
-#### [misc/sv_antidoorspam](./misc/sv_antidoorspam.lua)
-Self-explanatory.
+#### [misc/sv_doorusedelay](./misc/sv_doorusedelay.lua)
+Mostly to prevent unnecessary abuse of `+use` on doors.
 
-#### [obj_entity_extend/enablecollisions](./obj_entity_extend/enablecollisions.lua)
+#### [obj_entity_extend/disableallcollisions](./obj_entity_extend/disableallcollisions.lua)
 See the `Purpose` comment line.
 
 #### [obj_entity_extend/setgravity-improved](./obj_entity_extend/setgravity-improved.lua)
