@@ -43,8 +43,6 @@ do
 
 			player_t.m_flNextDoorUse = ( CurTime() + flDelay )
 
-			return true
-
 		end
 
 	end )
