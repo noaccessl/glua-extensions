@@ -42,7 +42,7 @@ do
 
 		local classname = GetClass( pEntity )
 
-		if ( CLASS_DOOR[classname] or string.find( sv_extradoorclasses:GetString(), classname ) ) then
+		if ( CLASS_DOOR[classname] or string.find( sv_extradoorclasses:GetString(), classname, 1, true ) ) then
 
 			local player_t = GetTable( pPlayer )
 
