@@ -1,6 +1,6 @@
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-	Purpose: Use Delay for Doors.
+	Purpose: Door Use Delay for players.
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
 do
 
@@ -20,20 +20,29 @@ do
 
 	}
 
-	local sv_doorusedelay = CreateConVar(
-		'sv_doorusedelay', '0.18',
+	-- ConVar for adding special or extra classes of doors, be there any.
+	local sv_extradoorclasses = CreateConVar(
+		'sv_extradoorclasses', '',
 		FCVAR_ARCHIVE + FCVAR_UNLOGGED,
-		'Keep relatively low. 0 — delay disabled.',
+		'Special/extra door classes to be recognized. (Used by GM:PlayerUse[Game:PlayerDoorUseDelay])'
+	)
+
+	local sv_playerdoorusedelay = CreateConVar(
+		'sv_playerdoorusedelay', '0.18',
+		FCVAR_ARCHIVE + FCVAR_UNLOGGED,
+		'Artificial delay for a player to using all doors, in seconds. Keep relatively low. 0 — delay disabled.',
 		0, 0.5
 	)
 
-	hook.Add( 'PlayerUse', 'Game_DoorUseDelay', function( pPlayer, pEntity )
+	hook.Add( 'PlayerUse', 'Game:PlayerDoorUseDelay', function( pPlayer, pEntity )
 
-		local flDelay = sv_doorusedelay:GetFloat()
+		local flDelay = sv_playerdoorusedelay:GetFloat()
 
 		if ( flDelay == 0 ) then return end
 
-		if ( CLASS_DOOR[GetClass( pEntity )] ) then
+		local classname = GetClass( pEntity )
+
+		if ( CLASS_DOOR[classname] or string.find( sv_extradoorclasses:GetString(), classname ) ) then
 
 			local player_t = GetTable( pPlayer )
 

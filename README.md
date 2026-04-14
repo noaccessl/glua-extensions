@@ -19,7 +19,7 @@ Switch statement akin to C/C++. JIT-compatible.
 #### [client/http](./client/http.lua)
 [client/README.md](./client/README.md)
 
-#### [misc/sv_doorusedelay](./misc/sv_doorusedelay.lua)
+#### [misc/sv_playerdoorusedelay](./misc/sv_playerdoorusedelay.lua)
 Mostly to prevent unnecessary abuse of `+use` on doors.
 
 #### [obj_entity_extend/disableallcollisions](./obj_entity_extend/disableallcollisions.lua)
