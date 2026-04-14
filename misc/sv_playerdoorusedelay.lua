@@ -24,7 +24,7 @@ do
 	local sv_extradoorclasses = CreateConVar(
 		'sv_extradoorclasses', '',
 		FCVAR_ARCHIVE + FCVAR_UNLOGGED,
-		'Special/extra door classes to be recognized. (Used by GM:PlayerUse[Game:PlayerDoorUseDelay])'
+		'Special/extra door classes to be recognized. (Used by GM:PlayerUse—Game:PlayerDoorUseDelay)'
 	)
 
 	local sv_playerdoorusedelay = CreateConVar(
