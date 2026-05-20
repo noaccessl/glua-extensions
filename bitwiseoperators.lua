@@ -1,6 +1,6 @@
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 
-	Unironically, Bitwise Operators. For GLua. Done in GLua.
+	Unironically (and, well... i-ronically), Bitwise Operators. For GLua. Done in GLua.
 
 	Rules:
 		* Order of operations is subsequent and linear.
@@ -11,8 +11,6 @@
 
 		* '~' has to be bracketed and made into a direct call: ('~')(..)
 			* Note that this construction resolves into just a single number.
-
-	https://github.com/noaccessl/glua-collectibles/bitwiseoperators.lua
 
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
 
@@ -43,35 +41,11 @@ local g_number = 0
 	operation_lshift;
 	operation_rshift
 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
-local function operation_and( ... )
-
-	return band( g_number, ... )
-
-end
-
-local function operation_or( ... )
-
-	return bor( g_number, ... )
-
-end
-
-local function operation_xor( num )
-
-	return bxor( g_number, num )
-
-end
-
-local function operation_lshift( bits )
-
-	return lshift( g_number, bits )
-
-end
-
-local function operation_rshift( bits )
-
-	return rshift( g_number, bits )
-
-end
+local function operation_and( ... ) return band( g_number, ... ) end
+local function operation_or( ... ) return bor( g_number, ... ) end
+local function operation_xor( num ) return bxor( g_number, num ) end
+local function operation_lshift( bits ) return lshift( g_number, bits ) end
+local function operation_rshift( bits ) return rshift( g_number, bits ) end
 
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	CLuaNumber
@@ -83,7 +57,7 @@ do
 	RegisterMetaTable( 'LuaNumber', CLuaNumber )
 
 	--[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
-		__call
+		CLuaNumber:__call
 	–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––]]
 	-- Operator–Operation Lookup Table
 	local OperatorOperation = {
@@ -137,8 +111,7 @@ do
 
 	--[[ Note
 		Why `tonumber( number ) ~= nil` and not `isnumber( number )` is
-		because the former should perform generally faster.
-		tonumber is JIT-compiled.
+		because the former should perform generally faster. tonumber() is JIT-compiled.
 	]]
 
 end
@@ -157,7 +130,7 @@ end
 	--
 	local flags = (1) '|' (2) '|' (4) '|' (8) '|' (16) '|' (32) '|' (64)
 
-	-- However, this would be faster.
+	-- Also this way.
 	flags = (1) '|' (2, 4, 8, 16, 32, 64)
 
 	if ( flags '&' (1) ~= 0 ) then

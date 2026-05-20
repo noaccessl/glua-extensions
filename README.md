@@ -3,27 +3,32 @@ Various GLua scripts/extensions of potential beneficial use.
 
 ---
 
-#### [net_tablethroughstring](./net_tablethroughstring.lua)
-See the heading within the file.
+##### [findmetamethod](./findmetamethod.lua)
+`function FindMetamethod( string request )` — Convenience function around `FindMetaTable( "<MetaName>" )|<MetaTable>.<MetaMethod>`.
 
-#### [utf8_lowerupper](./utf8_lowerupper.lua)
-`string.lower` & `string.upper` with UTF-8 support
+The `request` argument is expected in the following format: `<MetaName>(.|:|::|->)<MetaMethod>`.
+
+##### [net_tablethroughstring](./net_tablethroughstring.lua)
+Sending a table as a string instead of traversing the entire table and pushing every key and value to the message.
+
+##### [utf8_lowerupper](./utf8_lowerupper.lua)
+`string.lower` & `string.upper` with UTF-8 support.
 ```lua
 print( utf8.lower( 'АБВ' ) ) -- абв
 print( utf8.upper( 'абв' ) ) -- АБВ
 ```
 
-#### [util_switch](./util_switch.lua)
-Switch statement akin to C/C++. JIT-compatible.
+##### [util_switch](./util_switch.lua)
+Switch statement simillar to C/C++. JIT-compatible.
 
-#### [client/http](./client/http.lua)
-[client/README.md](./client/README.md)
+##### [client/http](./client/http.lua)
+Simplistic function for downloading web images: from an url into an `IMaterial` instance. At the clientside disconnect *all* files get deleted. See also [client/README.md](./client/README.md).
 
-#### [misc/sv_playerdoorusedelay](./misc/sv_playerdoorusedelay.lua)
-Mostly to prevent unnecessary abuse of `+use` on doors.
+##### [misc/sv_playerdoorusedelay](./misc/sv_playerdoorusedelay.lua)
+Artificial player-level delay upon using doors on the map. Mostly with a view to prevent unnecessary abuse of `+use` on doors.
 
-#### [obj_entity_extend/disableallcollisions](./obj_entity_extend/disableallcollisions.lua)
-See the `Purpose` comment line.
+##### [obj_entity_extend/disableallcollisions](./obj_entity_extend/disableallcollisions.lua)
+Adds `Entity:DisableAllCollisions`. Makes an entity <u>collide not</u> with anything whatsoever, or reverts things back to normal with that entity.
 
-#### [obj_entity_extend/setgravity-improved](./obj_entity_extend/setgravity-improved.lua)
-See the first note within the file.
+##### [obj_entity_extend/setgravity-improved](./obj_entity_extend/setgravity-improved.lua)
+`Entity:SetGravityImproved`. For those entities that are <u>affected not</u> by the standard `Entity:SetGravity`.
