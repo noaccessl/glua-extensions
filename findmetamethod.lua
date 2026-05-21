@@ -2,8 +2,7 @@
 --[[–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
 	function FindMetamethod( string request )
 
-	Purpose: Syntax-sugar &/or alternative for
-		FindMetaTable( "<MetaName>" ).<MetaMethod> / <MetaTable>.<MetaMethod>.
+	Purpose: Elegance alternative for FindMetaTable( "<MetaName>" )/<MetaTable>.<MetaMethod>.
 
 	Arguments:
 		string request
@@ -13,10 +12,10 @@
 do
 	if ( not FindMetamethod ) then
 
-	local strfind, assert, strsub = string.find, assert, string.sub
+	local strfind, strsub = string.find, string.sub
 	local FindMetaTable = FindMetaTable
 
-	local Separators = { '::'; ':', '.'; '->' } ; local NUM_SEPARATORS = #Separators
+	local Separators = { '.'; '::'; ':'; '->' } ; local NUM_SEPARATORS = #Separators
 
 	local shared_MetaTablesCache = {}
 
@@ -40,8 +39,8 @@ do
 
 		if ( not sepr_start ) then
 
-			assert(
-				false,
+			timer.Remove( 'FindMetamethod::ClearMetaTablesCache' )
+			error(
 				"malformed metamethod request: '" .. request .. "'" ..
 				"; expected format is <MetaName>(.|:|::|->)<MetaMethod>"
 			)
@@ -63,6 +62,8 @@ do
 
 	end
 
+	end
+
 	--
 	-- Let's also not fill Lua Memory for nothing and
 	-- clear the table somewhen after all the right metamethods
@@ -74,7 +75,6 @@ do
 
 	end
 
-	timer.Create( 'FindMetamethod::ClearMetaTablesCache', 60, 1, Timer_ClearCache )
+	timer.Create( 'FindMetamethod::ClearMetaTablesCache', 45, 1, Timer_ClearCache )
 
-	end
 end
